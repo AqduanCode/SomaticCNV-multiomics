@@ -1637,8 +1637,8 @@ function filtering_normalizing_seqDepth(dataframe_raw_sequencingdepth, depth_fil
         end
 
         # Extract subset where min and max values of each row meet requirements and return
-        miniDepth = minimum(Matrix(normalSubCombineData[:,4:12]), dims = 2)
-        maxiDepth = maximum(Matrix(normalSubCombineData[:,4:12]), dims = 2)
+        miniDepth = minimum(Matrix(normalSubCombineData[:,4:end]), dims = 2)
+        maxiDepth = maximum(Matrix(normalSubCombineData[:,4:end]), dims = 2)
         tempidx = findall((miniDepth[:] .> depth_filter2[1]) .& (maxiDepth[:] .< depth_filter2[2]))
         
         return normalSubCombineData[tempidx,:]
