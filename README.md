@@ -105,9 +105,9 @@ Load and combine multiple sample files into a single DataFrame.
 ```julia
 temp_path = "/path/to/data/"
 file_names = [
-    "E9-E10_his_rd_p_1000_allchr_new.csv",
-    "E9-E10-E8_his_rd_p_1000_allchr_new.csv",
-    "G6-E3_his_rd_p_1000_allchr_new.csv"
+    "H.1_his_rd_p_1000_allchr_new.csv",
+    "H.1.1_his_rd_p_1000_allchr_new.csv",
+    "H.1.2_his_rd_p_1000_allchr_new.csv"
 ]
 
 combineData = process_genomic_data(temp_path, file_names)
@@ -261,7 +261,7 @@ result = plotCNVregionMulti(
     positive_cnv_content = 0.8, # CNV purity threshold
     ylims_pre = [0 0],         # Auto y-axis
     xlims_pre = [0 0],         # Auto x-axis
-    chr = "chr20"              # Specific chromosome,Default for all chromosomes
+    chr = "chr20"              # Specific chromosome,ddefault for all chromosomes
 )
 
 # Export results
@@ -284,7 +284,7 @@ CSV.write("cnv_regions_filtered.csv", result[2])
 Each input CSV file should contain:
 
 | Column | Name       | Description                        |
-| ------ | ---------- | ---------------------------------- |
+d| ------ | ---------- | ---------------------------------- |
 | 1      | Chromosome | Chromosome identifier (chr1-chr22) |
 | 2      | BinLowEdge | Bin start position                 |
 | 3      | BinUpEdge  | Bin end position                   |
