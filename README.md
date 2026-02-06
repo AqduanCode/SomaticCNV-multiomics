@@ -258,11 +258,11 @@ result = plotCNVregionMulti(
     CNVscaffold,
     pairedCNV_FN,
     pairs;
-    layout = (2, 3),           # 2 rows, 3 columns
+    layout = (1, 2),           # 1 rows, 2 columns
     positive_cnv_content = 0.8, # CNV purity threshold
     ylims_pre = [0 0],         # Auto y-axis
     xlims_pre = [0 0],         # Auto x-axis
-    chr = "chr20"              # Specific chromosome,ddefault for all chromosomes
+    chr = "chr1"              # Specific chromosome,ddefault for all chromosomes
 )
 
 # Export results
