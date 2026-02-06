@@ -8,7 +8,7 @@
 
 ## Overview
 
-**CNVDetect pipeline** is a command-line pipeline and Julia library for genome-wide copy number variation (CNV) detection from read depth data. It uses Gaussian Mixture Models (GMM) for parameter estimation and statistical testing for identifying copy number differences between samples.
+**CNVDetect pipeline** is a command-line pipeline base on Julia for genome-wide copy number variation (CNV) detection from read depth data. It uses Gaussian Mixture Models (GMM) for parameter estimation and statistical testing for identifying copy number differences between samples.
 
 ### Key Features
 
