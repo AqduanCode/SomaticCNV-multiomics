@@ -129,8 +129,7 @@ Filter low-quality fragments and normalize sequencing depth.
 metaDataDF = filtering_normalizing_seqDepth(
     combineData,    # Input DataFrame
     [100, 2500],    # Raw depth filter [min, max]
-    [15, 250]       # Normalized depth filter [min, max]
-)
+    [15, 250]       # Normalized depth filter [min, max])
 ```
 
 **Parameters:**
