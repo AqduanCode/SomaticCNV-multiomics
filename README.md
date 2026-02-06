@@ -103,11 +103,12 @@ plotCNVregionMulti(metaDataDF, CNVscaffold, pairedCNV, [1 2]; chr="chr1")
 Load and combine multiple sample files into a single DataFrame.
 
 ```julia
-temp_path = "/path/to/data/"
+current_dir = pwd()
+temp_path = joinpath(current_dir,"sample data")
 file_names = [
-    "sample data/H.1_his_rd_p_1000_chr1.csv",
-    "sample data/H.1.1_his_rd_p_1000_chr1.csv",
-    "sample data/H.1.2_his_rd_p_1000_chr1.csv"
+    "H.1_his_rd_p_1000_chr1.csv",
+    "H.1.1_his_rd_p_1000_chr1.csv",
+    "H.1.2_his_rd_p_1000_chr1.csv"
 ]
 
 combineData = process_genomic_data(temp_path, file_names)
