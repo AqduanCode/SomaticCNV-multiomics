@@ -1,4 +1,4 @@
-# CNVDetect
+# CNVDetect pipeline
 
 <p align="center">
   <b>A Julia-based toolkit for Copy Number Variation detection from sequencing depth data</b>
@@ -8,7 +8,7 @@
 
 ## Overview
 
-**CNVDetect** is a command-line toolkit and Julia library for genome-wide copy number variation (CNV) detection from read depth data. It uses Gaussian Mixture Models (GMM) for parameter estimation and statistical testing for identifying copy number differences between samples.
+**CNVDetect pipeline** is a command-line pipeline and Julia library for genome-wide copy number variation (CNV) detection from read depth data. It uses Gaussian Mixture Models (GMM) for parameter estimation and statistical testing for identifying copy number differences between samples.
 
 ### Key Features
 
@@ -55,8 +55,8 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/CNVDetect.git
-cd CNVDetect
+git clone https://github.com/AqduanCode/SomaticCNV-multiomics
+cd SomaticCNV-multiomics
 
 # Start Julia and load the modules
 julia
@@ -105,9 +105,9 @@ Load and combine multiple sample files into a single DataFrame.
 ```julia
 temp_path = "/path/to/data/"
 file_names = [
-    "H.1_his_rd_p_1000_allchr_new.csv",
-    "H.1.1_his_rd_p_1000_allchr_new.csv",
-    "H.1.2_his_rd_p_1000_allchr_new.csv"
+    "sample data/H.1_his_rd_p_1000_chr1.csv",
+    "sample data/H.1.1_his_rd_p_1000_chr1.csv",
+    "sample data/H.1.2_his_rd_p_1000_chr1.csv"
 ]
 
 combineData = process_genomic_data(temp_path, file_names)
@@ -356,11 +356,11 @@ plotCNVregionMulti(metaDataDF, CNVscaffold, pairedCNV, [1 2]; chr="all")
 ### Example 2: Specific Chromosome Analysis
 
 ```julia
-# Plot chr22 with custom range
+# Plot chr1 with custom range
 plotCNVregionMulti(
     metaDataDF, CNVscaffold, pairedCNV, [1 2];
     layout = (1, 1),
-    chr = "chr22",
+    chr = "chr1",
     xlims_pre = [1e7 1.3e7],
     positive_cnv_content = 0.8
 )
