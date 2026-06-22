@@ -369,7 +369,7 @@ plotCNVregionMulti(
 
 ## Contact
 
-For questions and bug reports, please  please send an e-mail to Helab (duananqi@fudan.edu.cn).
+For questions and bug reports, please  send an e-mail to Helab (duananqi@fudan.edu.cn).
 
 ---
 
