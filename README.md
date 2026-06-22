@@ -1,4 +1,4 @@
-# CNVDetect pipeline
+# AbsCNV pipeline
 
 <p align="center">
   <b>A Julia-based toolkit for Copy Number Variation detection from sequencing depth data</b>
