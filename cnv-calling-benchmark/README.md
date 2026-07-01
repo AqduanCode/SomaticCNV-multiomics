@@ -4,15 +4,6 @@ This repository provides a reproducible workflow for benchmarking copy-number va
 
 The benchmark compares a **test sample** with a **control sample**. Both are simulated samples with predefined copy-number states; the control is a comparison baseline rather than a biological matched normal. Consequently, all calls should be interpreted as copy-number differences in the test sample relative to the control sample.
 
-## Repository structure
-
-```text
-cnv-calling-benchmark/
-├── README.md
-├── scripts/          # Analysis scripts supplied with the data release
-└── example-data/     # Small input and truth-table examples
-```
-
 ## Workflow overview
 
 ```text
@@ -42,7 +33,7 @@ The workflow was developed with 100-bp paired-end reads at 10× simulated covera
 
 ## 1. Prepare copy-number inputs
 
-The example input tables are described in [`example-data/README.md`](example-data/README.md). Each sample requires chromosome, interval start, interval end, and absolute copy number.
+Each sample requires chromosome, interval start, interval end, and absolute copy number.
 
 CNV-Sim represents copy-number change relative to diploid copy number 2:
 
