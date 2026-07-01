@@ -67,8 +67,8 @@ def load_benchmark():
             add_event(
                 events,
                 norm_chrom(row["chr"]),
-                to_int(row["BinLowEdge"]),
-                to_int(row["BinUpEdge"]),
+                to_int(row["Start"]),
+                to_int(row["End"]),
                 benchmark_state(row["Control"], row["Treat"]),
             )
     return events
