@@ -170,11 +170,12 @@ The CONTROL_FREEC_CONFIG file is provided in [`scripts/controlfree_10kb.conf`](s
 
 ### ichorCNA
 
+The complete BAM-to-WIG preparation, matched-control analysis, output description, and required hg38 resources are documented in [`scripts/ichorCNA_README.md`](scripts/ichorCNA_README.md). After preparing matching 10-kb test and control WIG files, the final CNV-calling step is:
+
 ```bash
 Rscript "$ICHORCNA_DIR/scripts/runIchorCNA.R" --id TEST_vs_CONTROL --WIG "$TEST_WIG" --NORMWIG "$CONTROL_WIG" --gcWig "$GC_WIG" --mapWig "$MAP_WIG" --normalPanel None --ploidy "c(2,3)" --normal "c(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9)" --maxCN 7 --chrs "c(1:22)" --chrTrain "c(1:22)" --chrNormalize "c(1:22)" --centromere "$CENTROMERE_FILE" --genomeBuild hg38 --genomeStyle UCSC --outDir "$OUTDIR"
 ```
 
-`TEST_WIG`, `CONTROL_WIG`, `GC_WIG`, and `MAP_WIG` must use the same bin size and genome build.
 
 ### AbsCNV
 
