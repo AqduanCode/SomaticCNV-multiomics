@@ -147,13 +147,12 @@ mkdir -p "$OUTDIR"
 
 ### BIC-seq2
 
-After generating normalized-bin files for both BAMs and a two-sample segmentation configuration, run:
+The complete input preparation, normalization, configuration, output interpretation, and troubleshooting workflow is provided in [`scripts/BICseq2_README.md`](scripts/BICseq2_README.md). After generating normalized bins for both samples and the three-column segmentation configuration described there, the final CNV-calling step is:
 
 ```bash
-NBICseq-seg.pl --control --lambda=2 --tmp="$OUTDIR/tmp" "$BICSEQ2_SEG_CONFIG" "$OUTDIR/TEST_vs_CONTROL.bicseq2_segments.tsv"
+NBICseq-seg.pl --control --lambda=2 --tmp="$OUTDIR/tmp_10kb/seg" "$BICSEQ2_SEG_CONFIG" "$OUTDIR/results/TEST_vs_CONTROL.10kb.bicseq2_segments.tsv"
 ```
 
-The benchmark workflow uses 10-kb normalization bins, 100-bp read length, an expected fragment size of 300 bp, and test-versus-control segmentation.
 
 ### CNVkit
 
