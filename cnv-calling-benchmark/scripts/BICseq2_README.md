@@ -154,4 +154,3 @@ results/TEST_SAMPLE_vs_CONTROL_SAMPLE.10kb.bicseq2_segments.tsv
 
 The second column of the segmentation configuration is the test/case sample; the third column is the control. Reversing them reverses the gain/loss direction.
 
-The script reproduces the benchmark's non-N mask. This is only an approximation of true read-length-specific mappability; never combine hg19 mappability files with hg38 BAM and FASTA files.
