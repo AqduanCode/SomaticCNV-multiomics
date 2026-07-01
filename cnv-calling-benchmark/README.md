@@ -131,7 +131,7 @@ samtools idxstats "$OUT" > "bam_10x/$SAMPLE/${SAMPLE}.sorted.idxstats.txt"
 
 Repeat for the control sample. The resulting BAMs are the inputs to all callers below. Example BAMs are available through OMIX website.
 
-## 4. Call relative CNVs
+## 4. Call CNVs
 
 Set common variables before running a caller:
 
@@ -156,17 +156,17 @@ NBICseq-seg.pl --control --lambda=2 --tmp="$OUTDIR/tmp_10kb/seg" "$BICSEQ2_SEG_C
 
 ### CNVkit
 
+The complete BAM preparation, hg38 access-region generation, matched-control analysis, and output description are documented in [`scripts/CNVkit_README.md`](scripts/CNVkit_README.md). The final CNV-calling step is:
 ```bash
 cnvkit.py batch "$TEST_BAM" --normal "$CONTROL_BAM" --method wgs --segment-method haar --target-avg-size 10000 --fasta "$REFERENCE_FASTA" --access "$CNVKIT_ACCESS_BED" --output-reference "$OUTDIR/control_reference.10kb.cnn" --output-dir "$OUTDIR" --scatter --diagram --processes 8
 ```
 
 ### Control-FREEC
 
+The complete reference preparation, configuration generation, matched-control analysis, and output description are documented in [`scripts/ControlFREEC_README.md`](scripts/ControlFREEC_README.md). After preparing the configuration, the final CNV-calling step is:
 ```bash
 freec -conf "$CONTROL_FREEC_CONFIG"
 ```
-
-The CONTROL_FREEC_CONFIG file is provided in [`scripts/controlfree_10kb.conf`](scripts/controlfree_10kb.conf).The configuration must define the test BAM under `[sample]`, the baseline BAM under `[control]`, matching hg38 chromosome resources, `ploidy = 2`, and `window = 10000`.
 
 ### ichorCNA
 
