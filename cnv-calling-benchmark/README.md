@@ -166,7 +166,7 @@ cnvkit.py batch "$TEST_BAM" --normal "$CONTROL_BAM" --method wgs --segment-metho
 freec -conf "$CONTROL_FREEC_CONFIG"
 ```
 
-The configuration must define the test BAM under `[sample]`, the baseline BAM under `[control]`, matching hg38 chromosome resources, `ploidy = 2`, and `window = 10000`.
+The CONTROL_FREEC_CONFIG file is provided in [`scripts/controlfree_10kb.conf`](scripts/controlfree_10kb.conf).The configuration must define the test BAM under `[sample]`, the baseline BAM under `[control]`, matching hg38 chromosome resources, `ploidy = 2`, and `window = 10000`.
 
 ### ichorCNA
 
