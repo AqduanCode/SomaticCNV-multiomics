@@ -1,31 +1,14 @@
 # BIC-seq2 two-sample CNV workflow
 
-This document describes a complete, reusable BIC-seq2 workflow for detecting copy-number differences in a test sample relative to a control sample. It reproduces the 10-kb workflow used for the CNV-Sim benchmark while replacing all server-specific paths and sample names with command-line arguments.
+This document describes a complete, reusable BIC-seq2 workflow for detecting copy-number differences in a test sample relative to a control sample. It reproduces the 10-kb workflow used for the CNV-Sim benchmark while replacing all server-specific paths and sample names with command-line arguments.Official BIC-seq2 documentation: <https://www.math.pku.edu.cn/teachers/xirb/downloads/software/BICseq2/BICseq2.html>
 
 The workflow has two required BIC-seq2 stages:
 
 1. `NBICseq-norm.pl` normalizes the test and control samples independently.
 2. `NBICseq-seg.pl --control` compares the two sets of normalized bins and calls CNV segments.
 
-`NBICseq-seg.pl` does not read BAM files directly. The BAM paths enter during normalization; the final segmentation configuration points to the resulting `chr*.norm.bin` files.
 
-Official BIC-seq2 documentation: <https://www.math.pku.edu.cn/teachers/xirb/downloads/software/BICseq2/BICseq2.html>
-
-## 1. Repository files
-
-The following files are supplied in this directory:
-
-```text
-scripts/
-├── BICseq2_README.md
-├── prepare_bicseq2_normalized_bins_10kb.sh
-└── bicseq2_seg_config_10kb.tsv
-```
-
-- `prepare_bicseq2_normalized_bins_10kb.sh` prepares reference files, extracts read positions, builds a normalization configuration, and runs `NBICseq-norm.pl` for one sample.
-- `bicseq2_seg_config_10kb.tsv` is an editable example of the three-column test/control segmentation configuration.
-
-## 2. Requirements
+## 1. Requirements
 
 Required software:
 
@@ -59,7 +42,7 @@ matching reference FASTA and FASTA index
 
 All inputs must use the same genome build and chromosome naming convention. For example, `chr1` in the BAM must correspond to `>chr1` in the FASTA.
 
-## 3. Define the analysis
+## 2. Define the analysis
 
 Set the repository, data, and output paths:
 
@@ -100,7 +83,7 @@ Index the inputs if needed:
 [[ -s "${CONTROL_BAM}.bai" || -s "${CONTROL_BAM%.bam}.bai" ]] || samtools index "$CONTROL_BAM"
 ```
 
-## 4. Normalize the test sample
+## 3. Normalize the test sample
 
 Run the supplied preparation script:
 
@@ -138,7 +121,7 @@ chrom  fa  mappability  read_positions  normalized_bins
 
 The fifth column tells `NBICseq-norm.pl` where to write each `chr*.norm.bin` file.
 
-## 5. Normalize the control sample
+## 4. Normalize the control sample
 
 Run the same script independently for the control:
 
@@ -176,7 +159,7 @@ for chr in $CHROMS; do
 done
 ```
 
-## 6. Create the test/control segmentation configuration
+## 5. Create the test/control segmentation configuration
 
 Generate the configuration from the actual output paths. This is safer than manually editing each line of the supplied template:
 
@@ -209,7 +192,7 @@ Column order is critical:
 
 Reversing these columns reverses the comparison and therefore the gain/loss direction.
 
-## 7. Call CNVs with BIC-seq2
+## 6. Call CNVs with BIC-seq2
 
 Create the output and temporary directories:
 
@@ -256,7 +239,7 @@ log2.copyRatio
 log2.TumorExpectRatio
 ```
 
-## 8. Optional gain/loss annotation
+## 7. Optional gain/loss annotation
 
 The original benchmark classified relative copy-ratio values as:
 
@@ -296,60 +279,3 @@ awk 'BEGIN {
        print $0,ratio,status
      }' "$SEGMENT_OUTPUT" > "$ANNOTATED_OUTPUT"
 ```
-
-These calls describe `TEST_SAMPLE` relative to `CONTROL_SAMPLE`; they are not absolute copy-number states.
-
-## 9. Output structure
-
-After a successful two-sample analysis:
-
-```text
-bicseq2_workdir/
-├── chrom_fasta/
-├── mappability_nonN/
-├── read_positions/
-│   ├── TEST_SAMPLE/
-│   └── CONTROL_SAMPLE/
-├── normalized_bins_10kb/
-│   ├── TEST_SAMPLE/
-│   └── CONTROL_SAMPLE/
-├── tmp_10kb/
-├── logs/
-├── results/
-├── config_norm_TEST_SAMPLE_10kb.tsv
-├── config_norm_CONTROL_SAMPLE_10kb.tsv
-└── config_seg_TEST_SAMPLE_vs_CONTROL_SAMPLE_10kb.tsv
-```
-
-## 10. Important notes
-
-### Mappability
-
-The supplied preparation script reproduces the original benchmark by generating non-N reference intervals as a simple mask. This is not a true read-length-specific mappability track. For a formal BIC-seq2 analysis, use a mappability resource appropriate for the reference build and read length whenever one is available. Do not mix hg19 mappability data with hg38 BAM and FASTA files.
-
-### Read filtering
-
-The reproduced workflow uses:
-
-```bash
-samtools view -f 64 -F 260
-```
-
-This retains mapped read-1 primary alignments but does not enforce a minimum mapping-quality threshold. The official workflow recommends uniquely mapped reads. If the alignment pipeline does not already identify unique mappings, consider adding a documented MAPQ filter, understanding that this changes the reproduced benchmark conditions.
-
-### Cached files
-
-The preparation script reuses existing non-empty FASTA, mask, and read-position files. To regenerate them after changing BAMs, references, or parameters:
-
-```bash
-FORCE=1 bash "$SCRIPT_DIR/prepare_bicseq2_normalized_bins_10kb.sh" \
-  "$TEST_SAMPLE" "$TEST_BAM" "$REFERENCE_FASTA" "$OUTDIR"
-```
-
-### Common failures
-
-- `NBICseq-norm.pl: command not found`: add the BIC-seq2 normalization directory to `PATH` or set `NBICSEQ_NORM`.
-- Missing `chr*.norm.bin`: inspect `logs/SAMPLE.10kb.norm.log` and confirm every chromosome exists in the BAM and FASTA.
-- Empty `chr*.seq`: confirm chromosome naming and inspect `samtools idxstats SAMPLE.bam`.
-- Segmentation direction is reversed: verify that column 2 is test and column 3 is control.
-- Mixed reference builds: confirm BAM, FASTA, mappability, and chromosome names all use the same build.
