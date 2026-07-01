@@ -147,7 +147,7 @@ mkdir -p "$OUTDIR"
 
 ### BIC-seq2
 
-The complete input preparation, normalization, configuration, output interpretation, and troubleshooting workflow is provided in [`scripts/BICseq2_README.md`](scripts/BICseq2_README.md). After generating normalized bins for both samples and the three-column segmentation configuration described there, the final CNV-calling step is:
+The complete workflow is provided in [`scripts/BICseq2_README.md`](scripts/BICseq2_README.md). The main CNV-calling step is:
 
 ```bash
 NBICseq-seg.pl --control --lambda=2 --tmp="$OUTDIR/tmp_10kb/seg" "$BICSEQ2_SEG_CONFIG" "$OUTDIR/results/TEST_vs_CONTROL.10kb.bicseq2_segments.tsv"
