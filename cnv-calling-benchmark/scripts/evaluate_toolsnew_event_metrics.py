@@ -3,7 +3,7 @@ import csv
 from pathlib import Path
 
 
-BASE = Path("/home/data3/home/jjy/CNVsim/Toolsnew/evaluation")
+BASE = Path("/path/to/evaluation")
 VALID = {"GAIN", "LOSS"}
 OVERLAP_THRESHOLD = 0.5
 
@@ -38,9 +38,9 @@ def add_event(events, chrom, start, end, state):
         )
 
 
-def benchmark_state(df4g6, dfg6a7):
-    control = float(df4g6)
-    target = float(dfg6a7)
+def benchmark_state(Control, Treat):
+    control = float(Control)
+    target = float(Treat)
     if target > control:
         return "GAIN"
     if target < control:
@@ -69,7 +69,7 @@ def load_benchmark():
                 norm_chrom(row["chr"]),
                 to_int(row["BinLowEdge"]),
                 to_int(row["BinUpEdge"]),
-                benchmark_state(row["df4G6"], row["dfG6A7"]),
+                benchmark_state(row["Control"], row["Treat"]),
             )
     return events
 
