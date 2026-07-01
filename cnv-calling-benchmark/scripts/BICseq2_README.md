@@ -10,28 +10,6 @@ The workflow has two required BIC-seq2 stages:
 
 ## 1. Requirements
 
-Required software:
-
-```text
-Bash
-SAMtools
-Perl
-awk
-NBICseq-norm.pl
-NBICseq-seg.pl
-```
-
-Make the BIC-seq2 executables available in `PATH`, or provide the normalization executable through `NBICSEQ_NORM`:
-
-```bash
-export PATH=/path/to/bicseq2/bin:$PATH
-export NBICSEQ_NORM=/path/to/NBICseq-norm.pl
-
-command -v samtools
-command -v NBICseq-norm.pl
-command -v NBICseq-seg.pl
-```
-
 Input data:
 
 ```text
