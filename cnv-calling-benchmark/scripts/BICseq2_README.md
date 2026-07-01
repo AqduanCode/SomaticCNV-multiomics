@@ -1,6 +1,6 @@
 # BIC-seq2 two-sample CNV workflow
 
-This document describes a complete, reusable BIC-seq2 workflow for detecting copy-number differences in a test sample relative to a control sample. It reproduces the 10-kb workflow used for the CNV-Sim benchmark while replacing all server-specific paths and sample names with command-line arguments.Official BIC-seq2 documentation: <https://www.math.pku.edu.cn/teachers/xirb/downloads/software/BICseq2/BICseq2.html>
+This document describes a complete, reusable BIC-seq2 workflow for detecting copy-number differences in a test sample relative to a control sample. Official BIC-seq2 documentation: <https://www.math.pku.edu.cn/teachers/xirb/downloads/software/BICseq2/BICseq2.html>
 
 The workflow has two required BIC-seq2 stages:
 
