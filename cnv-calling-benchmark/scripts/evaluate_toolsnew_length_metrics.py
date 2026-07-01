@@ -59,8 +59,8 @@ def load_benchmark():
             add_interval(
                 intervals,
                 norm_chrom(row["chr"]),
-                to_int(row["BinLowEdge"]),
-                to_int(row["BinUpEdge"]),
+                to_int(row["Start"]),
+                to_int(row["End"]),
                 benchmark_state(row["Control"], row["Treat"]),
             )
     return intervals
