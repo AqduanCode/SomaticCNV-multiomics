@@ -22,8 +22,7 @@ BIC-seq2 / CNVkit / Control-FREEC / ichorCNA / SomaticCNV-multiomics
 
 ## Requirements
 
-- Linux and Bash
-- Python 3-compatible CNV-Sim
+- CNV-Sim
 - Bowtie2
 - SAMtools
 - hg38/GRCh38 reference FASTA and a matching Bowtie2 index
