@@ -1,259 +1,157 @@
 # BIC-seq2 two-sample CNV workflow
 
-This document describes a complete BIC-seq2 workflow for detecting copy-number differences in a test sample relative to a control sample. Official BIC-seq2 documentation: <https://www.math.pku.edu.cn/teachers/xirb/downloads/software/BICseq2/BICseq2.html>
+This workflow detects copy-number differences in a test sample relative to a control sample using 10-kb bins.
 
-The workflow has two required BIC-seq2 stages:
+Official documentation: <https://www.math.pku.edu.cn/teachers/xirb/downloads/software/BICseq2/BICseq2.html>
 
-1. `NBICseq-norm.pl` normalizes the test and control samples independently.
-2. `NBICseq-seg.pl --control` compares the two sets of normalized bins and calls CNV segments.
+## Requirements
 
-
-## 1. Requirements
-
-Input data:
+The following commands must be available in `PATH`:
 
 ```text
-coordinate-sorted test BAM and BAM index
-coordinate-sorted control BAM and BAM index
-matching reference FASTA and FASTA index
+samtools
+perl
+awk
+NBICseq-norm.pl
+NBICseq-seg.pl
 ```
 
-All inputs must use the same genome build and chromosome naming convention. For example, `chr1` in the BAM must correspond to `>chr1` in the FASTA.
+Required inputs:
 
-## 2. Define the analysis
+```text
+coordinate-sorted test BAM
+coordinate-sorted control BAM
+matching hg38 reference FASTA
+```
 
-Set the repository, data, and output paths:
+The BAM files and reference must use the same chromosome names.
+
+## Run BIC-seq2
+
+Copy the following code into a Bash script and edit only the variables at the top:
 
 ```bash
-REPOSITORY=/path/to/cnv-calling-benchmark
-SCRIPT_DIR="$REPOSITORY/scripts"
+#!/usr/bin/env bash
+set -euo pipefail
 
 TEST_SAMPLE=TEST_SAMPLE
 CONTROL_SAMPLE=CONTROL_SAMPLE
-
 TEST_BAM=/path/to/TEST_SAMPLE.sorted.bam
 CONTROL_BAM=/path/to/CONTROL_SAMPLE.sorted.bam
 REFERENCE_FASTA=/path/to/hg38.fa
-
 OUTDIR=/path/to/bicseq2_workdir
-mkdir -p "$OUTDIR"
-```
 
-Select the chromosomes. The following list matches the original server workflow:
+READ_LEN=100
+FRAG_SIZE=300
+BIN_SIZE=10000
+LAMBDA=2
+CHROMS=(chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22)
 
-```bash
-CHROMS="chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22 chrX chrY"
-export CHROMS
-```
+mkdir -p \
+  "$OUTDIR/chrom_fasta" \
+  "$OUTDIR/mappability_nonN" \
+  "$OUTDIR/read_positions/$TEST_SAMPLE" \
+  "$OUTDIR/read_positions/$CONTROL_SAMPLE" \
+  "$OUTDIR/normalized_bins_10kb/$TEST_SAMPLE" \
+  "$OUTDIR/normalized_bins_10kb/$CONTROL_SAMPLE" \
+  "$OUTDIR/tmp_10kb/$TEST_SAMPLE" \
+  "$OUTDIR/tmp_10kb/$CONTROL_SAMPLE" \
+  "$OUTDIR/tmp_10kb/seg" \
+  "$OUTDIR/results" \
+  "$OUTDIR/logs"
 
-For an autosome-only benchmark, use the same chromosome list in every step:
-
-```bash
-CHROMS="chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22"
-export CHROMS
-```
-
-Index the inputs if needed:
-
-```bash
 [[ -s "${REFERENCE_FASTA}.fai" ]] || samtools faidx "$REFERENCE_FASTA"
 [[ -s "${TEST_BAM}.bai" || -s "${TEST_BAM%.bam}.bai" ]] || samtools index "$TEST_BAM"
 [[ -s "${CONTROL_BAM}.bai" || -s "${CONTROL_BAM%.bam}.bai" ]] || samtools index "$CONTROL_BAM"
-```
 
-## 3. Normalize the test sample
+# Prepare chromosome FASTA files, non-N masks, and read positions.
+for chr in "${CHROMS[@]}"; do
+  samtools faidx "$REFERENCE_FASTA" "$chr" > "$OUTDIR/chrom_fasta/${chr}.fa"
 
-Run the supplied preparation script:
+  perl -ne '
+    BEGIN { $pos=0; $start=0; }
+    next if /^>/;
+    chomp;
+    for my $base (split //) {
+      $pos++;
+      if ($base =~ /[Nn]/) {
+        if ($start) { print $start,"\t",$pos-1,"\n"; $start=0; }
+      } else {
+        $start ||= $pos;
+      }
+    }
+    END { print $start,"\t",$pos,"\n" if $start; }
+  ' "$OUTDIR/chrom_fasta/${chr}.fa" > "$OUTDIR/mappability_nonN/${chr}.nonN.map"
 
-```bash
-bash "$SCRIPT_DIR/prepare_bicseq2_normalized_bins_10kb.sh" \
-  "$TEST_SAMPLE" \
-  "$TEST_BAM" \
-  "$REFERENCE_FASTA" \
-  "$OUTDIR"
-```
+  samtools view -f 64 -F 260 "$TEST_BAM" "$chr" \
+    | awk '{print $4}' > "$OUTDIR/read_positions/$TEST_SAMPLE/${chr}.seq"
 
-The script performs the following operations:
-
-1. Extracts one FASTA file per chromosome with `samtools faidx`.
-2. Generates the non-N interval mask used by the original benchmark workflow.
-3. Extracts mapped read-1 positions from the BAM into `chr*.seq` files.
-4. Creates `config_norm_TEST_SAMPLE_10kb.tsv`.
-5. Runs `NBICseq-norm.pl` with read length 100 bp, fragment size 300 bp, and bin size 10,000 bp.
-
-Principal outputs:
-
-```text
-$OUTDIR/config_norm_TEST_SAMPLE_10kb.tsv
-$OUTDIR/read_positions/TEST_SAMPLE/chr*.seq
-$OUTDIR/normalized_bins_10kb/TEST_SAMPLE/chr*.norm.bin
-$OUTDIR/results/TEST_SAMPLE.10kb.norm_params.txt
-$OUTDIR/logs/TEST_SAMPLE.10kb.norm.log
-```
-
-The normalization configuration is tab-delimited and has five columns:
-
-```text
-chrom  fa  mappability  read_positions  normalized_bins
-```
-
-The fifth column tells `NBICseq-norm.pl` where to write each `chr*.norm.bin` file.
-
-## 4. Normalize the control sample
-
-Run the same script independently for the control:
-
-```bash
-bash "$SCRIPT_DIR/prepare_bicseq2_normalized_bins_10kb.sh" \
-  "$CONTROL_SAMPLE" \
-  "$CONTROL_BAM" \
-  "$REFERENCE_FASTA" \
-  "$OUTDIR"
-```
-
-Principal outputs:
-
-```text
-$OUTDIR/config_norm_CONTROL_SAMPLE_10kb.tsv
-$OUTDIR/read_positions/CONTROL_SAMPLE/chr*.seq
-$OUTDIR/normalized_bins_10kb/CONTROL_SAMPLE/chr*.norm.bin
-$OUTDIR/results/CONTROL_SAMPLE.10kb.norm_params.txt
-$OUTDIR/logs/CONTROL_SAMPLE.10kb.norm.log
-```
-
-A normalized-bin file normally begins with:
-
-```text
-start  end    obs  expected  var
-10001  20000  506  551.049   561.452
-```
-
-Verify that both samples produced non-empty files:
-
-```bash
-for chr in $CHROMS; do
-  test -s "$OUTDIR/normalized_bins_10kb/$TEST_SAMPLE/${chr}.norm.bin"
-  test -s "$OUTDIR/normalized_bins_10kb/$CONTROL_SAMPLE/${chr}.norm.bin"
+  samtools view -f 64 -F 260 "$CONTROL_BAM" "$chr" \
+    | awk '{print $4}' > "$OUTDIR/read_positions/$CONTROL_SAMPLE/${chr}.seq"
 done
-```
 
-## 5. Create the test/control segmentation configuration
+# Create one normalization configuration for each sample.
+make_norm_config() {
+  sample="$1"
+  config="$OUTDIR/config_norm_${sample}_10kb.tsv"
 
-Generate the configuration from the actual output paths. This is safer than manually editing each line of the supplied template:
-
-```bash
-BICSEQ2_SEG_CONFIG="$OUTDIR/config_seg_${TEST_SAMPLE}_vs_${CONTROL_SAMPLE}_10kb.tsv"
-
-{
-  printf 'chrom\tcase_normalized_bins\tcontrol_normalized_bins\n'
-
-  for chr in $CHROMS; do
-    printf '%s\t%s\t%s\n' \
+  printf 'chrom\tfa\tmappability\tread_positions\tnormalized_bins\n' > "$config"
+  for chr in "${CHROMS[@]}"; do
+    printf '%s\t%s\t%s\t%s\t%s\n' \
       "$chr" \
-      "$OUTDIR/normalized_bins_10kb/$TEST_SAMPLE/${chr}.norm.bin" \
-      "$OUTDIR/normalized_bins_10kb/$CONTROL_SAMPLE/${chr}.norm.bin"
+      "$OUTDIR/chrom_fasta/${chr}.fa" \
+      "$OUTDIR/mappability_nonN/${chr}.nonN.map" \
+      "$OUTDIR/read_positions/$sample/${chr}.seq" \
+      "$OUTDIR/normalized_bins_10kb/$sample/${chr}.norm.bin" \
+      >> "$config"
   done
-} > "$BICSEQ2_SEG_CONFIG"
-```
+}
 
-The file must be tab-delimited:
+make_norm_config "$TEST_SAMPLE"
+make_norm_config "$CONTROL_SAMPLE"
 
-```text
-chrom  case_normalized_bins  control_normalized_bins
-chr1   /path/to/TEST_SAMPLE/chr1.norm.bin   /path/to/CONTROL_SAMPLE/chr1.norm.bin
-```
+# Normalize test and control independently.
+NBICseq-norm.pl \
+  -l="$READ_LEN" -s="$FRAG_SIZE" -b="$BIN_SIZE" \
+  --tmp="$OUTDIR/tmp_10kb/$TEST_SAMPLE" \
+  "$OUTDIR/config_norm_${TEST_SAMPLE}_10kb.tsv" \
+  "$OUTDIR/results/${TEST_SAMPLE}.10kb.norm_params.txt" \
+  > "$OUTDIR/logs/${TEST_SAMPLE}.10kb.norm.log" 2>&1
 
-Column order is critical:
+NBICseq-norm.pl \
+  -l="$READ_LEN" -s="$FRAG_SIZE" -b="$BIN_SIZE" \
+  --tmp="$OUTDIR/tmp_10kb/$CONTROL_SAMPLE" \
+  "$OUTDIR/config_norm_${CONTROL_SAMPLE}_10kb.tsv" \
+  "$OUTDIR/results/${CONTROL_SAMPLE}.10kb.norm_params.txt" \
+  > "$OUTDIR/logs/${CONTROL_SAMPLE}.10kb.norm.log" 2>&1
 
-- column 2 is the test/case sample;
-- column 3 is the control sample.
+# Tell NBICseq-seg.pl which normalized bins are test and control.
+BICSEQ2_SEG_CONFIG="$OUTDIR/config_seg_${TEST_SAMPLE}_vs_${CONTROL_SAMPLE}_10kb.tsv"
+printf 'chrom\tcase_normalized_bins\tcontrol_normalized_bins\n' > "$BICSEQ2_SEG_CONFIG"
 
-Reversing these columns reverses the comparison and therefore the gain/loss direction.
+for chr in "${CHROMS[@]}"; do
+  printf '%s\t%s\t%s\n' \
+    "$chr" \
+    "$OUTDIR/normalized_bins_10kb/$TEST_SAMPLE/${chr}.norm.bin" \
+    "$OUTDIR/normalized_bins_10kb/$CONTROL_SAMPLE/${chr}.norm.bin" \
+    >> "$BICSEQ2_SEG_CONFIG"
+done
 
-## 6. Call CNVs with BIC-seq2
-
-Create the output and temporary directories:
-
-```bash
-mkdir -p "$OUTDIR/results" "$OUTDIR/tmp_10kb/seg"
-```
-
-Run the final segmentation step:
-
-```bash
-SEGMENT_OUTPUT="$OUTDIR/results/${TEST_SAMPLE}_vs_${CONTROL_SAMPLE}.10kb.bicseq2_segments.tsv"
-SEGMENT_FIGURE="$OUTDIR/results/${TEST_SAMPLE}_vs_${CONTROL_SAMPLE}.10kb.bicseq2_profile.png"
-
+# Final CNV calling step.
 NBICseq-seg.pl \
   --control \
-  --lambda=2 \
+  --lambda="$LAMBDA" \
   --tmp="$OUTDIR/tmp_10kb/seg" \
-  --fig="$SEGMENT_FIGURE" \
-  --title="$TEST_SAMPLE vs $CONTROL_SAMPLE BIC-seq2 CNV 10kb" \
   "$BICSEQ2_SEG_CONFIG" \
-  "$SEGMENT_OUTPUT"
+  "$OUTDIR/results/${TEST_SAMPLE}_vs_${CONTROL_SAMPLE}.10kb.bicseq2_segments.tsv"
 ```
 
-`--control` activates the case/control mode. It does not specify the BAM paths or sample roles; those roles are already encoded in columns 2 and 3 of `BICSEQ2_SEG_CONFIG`.
-
-The principal result is:
+## Main output
 
 ```text
-$OUTDIR/results/TEST_SAMPLE_vs_CONTROL_SAMPLE.10kb.bicseq2_segments.tsv
+results/TEST_SAMPLE_vs_CONTROL_SAMPLE.10kb.bicseq2_segments.tsv
 ```
 
-Typical columns include:
+The second column of the segmentation configuration is the test/case sample; the third column is the control. Reversing them reverses the gain/loss direction.
 
-```text
-chrom
-start
-end
-binNum
-tumor
-tumor_expect
-normal
-normal_expect
-log2.copyRatio
-log2.TumorExpectRatio
-```
-
-## 7. Optional gain/loss annotation
-
-The original benchmark classified relative copy-ratio values as:
-
-```text
-copyRatio > 1.1  => gain
-copyRatio < 0.9  => loss
-otherwise        => neutral
-```
-
-Add `copyRatio` and `status` columns:
-
-```bash
-ANNOTATED_OUTPUT="$OUTDIR/results/${TEST_SAMPLE}_vs_${CONTROL_SAMPLE}.10kb.bicseq2_segments.annotated.tsv"
-
-awk 'BEGIN {
-       OFS="\t"
-       loss=log(0.9)/log(2)
-       gain=log(1.1)/log(2)
-     }
-     NR==1 {
-       for (i=1; i<=NF; i++) {
-         if ($i=="log2.copyRatio") column=i
-       }
-       if (!column) {
-         print "ERROR: log2.copyRatio column not found" > "/dev/stderr"
-         exit 2
-       }
-       print $0,"copyRatio","status"
-       next
-     }
-     {
-       log2ratio=$column+0
-       ratio=2^log2ratio
-       if (log2ratio > gain) status="gain"
-       else if (log2ratio < loss) status="loss"
-       else status="neutral"
-       print $0,ratio,status
-     }' "$SEGMENT_OUTPUT" > "$ANNOTATED_OUTPUT"
-```
+The script reproduces the benchmark's non-N mask. This is only an approximation of true read-length-specific mappability; never combine hg19 mappability files with hg38 BAM and FASTA files.
