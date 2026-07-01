@@ -143,7 +143,7 @@ OUTDIR=/path/to/results
 mkdir -p "$OUTDIR"
 ```
 
-Only the principal calling command for each external tool is shown here. Preparation of tool-specific reference tracks and configuration files is handled by the scripts supplied in `scripts/`.
+
 
 ### BIC-seq2
 
