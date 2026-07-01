@@ -181,15 +181,12 @@ Rscript "$ICHORCNA_DIR/scripts/runIchorCNA.R" --id TEST_vs_CONTROL --WIG "$TEST_
 
 Installation, input preparation, parameters, and detailed usage of our method are maintained in [AqduanCode/SomaticCNV-multiomics](https://github.com/AqduanCode/SomaticCNV-multiomics). Follow that repository for the current workflow rather than duplicating its documentation here.
 
-## 5. Interpretation
+## 5.Benchmark evaluation
 
-All outputs represent `TEST_SAMPLE` relative to `CONTROL_SAMPLE`:
+The code used to compare the performance of different CNV-calling tools is provided in the following scripts:
 
-- a positive log2 ratio or increased copy state indicates a relative gain;
-- a negative log2 ratio or decreased copy state indicates a relative loss;
-- a value close to zero indicates no detectable relative difference.
-
-Do not describe the control as a matched normal unless it was simulated and analyzed as such. Record the caller version, reference build, bin size, comparison direction, and gain/loss thresholds with every benchmark result.
+- [`evaluate_toolsnew_length_metrics.py`](https://github.com/AqduanCode/SomaticCNV-multiomics/blob/main/cnv-calling-benchmark/scripts/evaluate_toolsnew_length_metrics.py) performs length-based evaluation by comparing the genomic lengths covered by benchmark and predicted CNV regions.
+- [`evaluate_toolsnew_event_metrics.py`](https://github.com/AqduanCode/SomaticCNV-multiomics/blob/main/cnv-calling-benchmark/scripts/evaluate_toolsnew_event_metrics.py) performs event-based evaluation by comparing individual benchmark and predicted CNV events.
 
 
 
