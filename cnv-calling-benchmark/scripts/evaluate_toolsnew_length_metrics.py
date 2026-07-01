@@ -4,7 +4,7 @@ from collections import defaultdict
 from pathlib import Path
 
 
-BASE = Path("/home/data3/home/jjy/CNVsim/Toolsnew/evaluation")
+BASE = Path("/path/to/evaluation")
 VALID = {"GAIN", "LOSS"}
 
 
@@ -30,9 +30,9 @@ def add_interval(store, chrom, start, end, state):
         store.append((chrom, start, end, state))
 
 
-def benchmark_state(df4g6, dfg6a7):
-    control = float(df4g6)
-    target = float(dfg6a7)
+def benchmark_state(Control, Treat):
+    control = float(Control)
+    target = float(Treat)
     if target > control:
         return "GAIN"
     if target < control:
@@ -61,7 +61,7 @@ def load_benchmark():
                 norm_chrom(row["chr"]),
                 to_int(row["BinLowEdge"]),
                 to_int(row["BinUpEdge"]),
-                benchmark_state(row["df4G6"], row["dfG6A7"]),
+                benchmark_state(row["Control"], row["Treat"]),
             )
     return intervals
 
