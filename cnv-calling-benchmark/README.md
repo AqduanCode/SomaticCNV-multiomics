@@ -181,7 +181,7 @@ Rscript "$ICHORCNA_DIR/scripts/runIchorCNA.R" --id TEST_vs_CONTROL --WIG "$TEST_
 
 Installation, input preparation, parameters, and detailed usage of our method are maintained in [AqduanCode/SomaticCNV-multiomics](https://github.com/AqduanCode/SomaticCNV-multiomics). Follow that repository for the current workflow rather than duplicating its documentation here.
 
-## 5.Benchmark evaluation
+## 5. Benchmark evaluation
 
 The code used to compare the performance of different CNV-calling tools is provided in the following scripts:
 
