@@ -38,9 +38,9 @@ def add_event(events, chrom, start, end, state):
         )
 
 
-def benchmark_state(Control, Treat):
-    control = float(Control)
-    target = float(Treat)
+def benchmark_state(Control_CN, Treat_CN):
+    control = float(Control_CN)
+    target = float(Treat_CN)
     if target > control:
         return "GAIN"
     if target < control:
@@ -69,7 +69,7 @@ def load_benchmark():
                 norm_chrom(row["chr"]),
                 to_int(row["Start"]),
                 to_int(row["End"]),
-                benchmark_state(row["Control"], row["Treat"]),
+                benchmark_state(row["Control_CN"], row["Treat_CN"]),
             )
     return events
 
