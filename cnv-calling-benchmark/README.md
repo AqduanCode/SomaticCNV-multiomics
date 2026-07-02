@@ -129,7 +129,7 @@ samtools flagstat -@ 4 "$OUT" > "bam_10x/$SAMPLE/${SAMPLE}.sorted.flagstat.txt"
 samtools idxstats "$OUT" > "bam_10x/$SAMPLE/${SAMPLE}.sorted.idxstats.txt"
 ```
 
-Repeat for the control sample. The resulting BAMs are the inputs to all callers below. Example BAMs are available through OMIX website.
+Repeat for the control sample. The resulting BAMs are the inputs to all callers below. Example BAMs are available through OMIX website (OMIX015037).
 
 ## 4. Call CNVs
 
