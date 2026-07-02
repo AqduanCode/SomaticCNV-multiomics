@@ -47,8 +47,8 @@ CNV-Sim represents copy-number change relative to diploid copy number 2:
 For each interval, calculate `variation = absolute_copy_number - 2`. Copy-neutral intervals may be omitted. The resulting CNV-Sim BED-like file has the following format:
 
 ```text
-# chr  chr_start  chr_stop  num_positions  copy_number
-chr1  781854      898734    116881         1
+# chr  chr_start  chr_stop   copy_number
+chr1  781854      898734            1
 ```
 
 Here, the last field is the CNV-Sim variation, not the absolute copy number. Retain a separate truth table containing both values.
