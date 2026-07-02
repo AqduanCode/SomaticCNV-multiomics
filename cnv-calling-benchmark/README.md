@@ -188,6 +188,14 @@ The code used to compare the performance of different CNV-calling tools is provi
 - [`evaluate_toolsnew_length_metrics.py`](https://github.com/AqduanCode/SomaticCNV-multiomics/blob/main/cnv-calling-benchmark/scripts/evaluate_toolsnew_length_metrics.py) performs length-based evaluation by comparing the genomic lengths covered by benchmark and predicted CNV regions.
 - [`evaluate_toolsnew_event_metrics.py`](https://github.com/AqduanCode/SomaticCNV-multiomics/blob/main/cnv-calling-benchmark/scripts/evaluate_toolsnew_event_metrics.py) performs event-based evaluation by comparing individual benchmark and predicted CNV events.
 
+## 6. Interpretation
+
+All outputs represent `TEST_SAMPLE` relative to `CONTROL_SAMPLE`:
+
+- a positive log2 ratio or increased copy state indicates a relative gain;
+- a negative log2 ratio or decreased copy state indicates a relative loss;
+- a value close to zero indicates no detectable relative difference.
+
 
 
 
