@@ -133,7 +133,7 @@ def load_controlfreec():
 
 def load_ichor():
     events = []
-    with (BASE / "ichorDNA.seg").open(newline="") as handle:
+    with (BASE / "ichorCNA.seg").open(newline="") as handle:
         reader = csv.DictReader(handle, delimiter="\t")
         for row in reader:
             add_event(
@@ -219,7 +219,7 @@ def main():
         "BICseq2": load_bicseq2(),
         "CNVkit": load_cnvkit(),
         "ControlFreec": load_controlfreec(),
-        "ichorDNA": load_ichor(),
+        "ichorCNA": load_ichor(),
         "AbsCNV": load_gmm(),
     }
     rows = [evaluate(tool, calls, benchmarks) for tool, calls in tools.items()]
