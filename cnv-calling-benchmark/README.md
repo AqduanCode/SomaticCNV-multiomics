@@ -147,7 +147,7 @@ mkdir -p "$OUTDIR"
 
 ### BIC-seq2
 
-The complete workflow is provided in [`scripts/BICseq2_README.md`](scripts/BICseq2_README.md). The main CNV-calling step is:
+The complete workflow is provided in [`Tools/BICseq2_README.md`](Tools/BICseq2_README.md). The main CNV-calling step is:
 
 ```bash
 NBICseq-seg.pl --control --lambda=2 --tmp="$OUTDIR/tmp_10kb/seg" "$BICSEQ2_SEG_CONFIG" "$OUTDIR/results/TEST_vs_CONTROL.10kb.bicseq2_segments.tsv"
@@ -156,21 +156,21 @@ NBICseq-seg.pl --control --lambda=2 --tmp="$OUTDIR/tmp_10kb/seg" "$BICSEQ2_SEG_C
 
 ### CNVkit
 
-The complete BAM preparation, hg38 access-region generation, matched-control analysis, and output description are documented in [`scripts/CNVkit_README.md`](scripts/CNVkit_README.md). The final CNV-calling step is:
+The complete BAM preparation, hg38 access-region generation, matched-control analysis, and output description are documented in [`Tools/CNVkit_README.md`](Tools/CNVkit_README.md). The final CNV-calling step is:
 ```bash
 cnvkit.py batch "$TEST_BAM" --normal "$CONTROL_BAM" --method wgs --segment-method haar --target-avg-size 10000 --fasta "$REFERENCE_FASTA" --access "$CNVKIT_ACCESS_BED" --output-reference "$OUTDIR/control_reference.10kb.cnn" --output-dir "$OUTDIR" --scatter --diagram --processes 8
 ```
 
 ### Control-FREEC
 
-The complete reference preparation, configuration generation, matched-control analysis, and output description are documented in [`scripts/ControlFREEC_README.md`](scripts/ControlFREEC_README.md). After preparing the configuration, the final CNV-calling step is:
+The complete reference preparation, configuration generation, matched-control analysis, and output description are documented in [`Tools/ControlFREEC_README.md`](Tools/ControlFREEC_README.md). After preparing the configuration, the final CNV-calling step is:
 ```bash
 freec -conf "$CONTROL_FREEC_CONFIG"
 ```
 
 ### ichorCNA
 
-The complete BAM-to-WIG preparation, matched-control analysis, output description, and required hg38 resources are documented in [`scripts/ichorCNA_README.md`](scripts/ichorCNA_README.md). After preparing matching 10-kb test and control WIG files, the final CNV-calling step is:
+The complete BAM-to-WIG preparation, matched-control analysis, output description, and required hg38 resources are documented in [`Tools/ichorCNA_README.md`](Tools/ichorCNA_README.md). After preparing matching 10-kb test and control WIG files, the final CNV-calling step is:
 
 ```bash
 Rscript "$ICHORCNA_DIR/scripts/runIchorCNA.R" --id TEST_vs_CONTROL --WIG "$TEST_WIG" --NORMWIG "$CONTROL_WIG" --gcWig "$GC_WIG" --mapWig "$MAP_WIG" --normalPanel None --ploidy "c(2,3)" --normal "c(0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9)" --maxCN 7 --chrs "c(1:22)" --chrTrain "c(1:22)" --chrNormalize "c(1:22)" --centromere "$CENTROMERE_FILE" --genomeBuild hg38 --genomeStyle UCSC --outDir "$OUTDIR"
