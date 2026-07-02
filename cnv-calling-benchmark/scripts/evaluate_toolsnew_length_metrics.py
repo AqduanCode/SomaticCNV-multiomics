@@ -123,7 +123,7 @@ def load_ichor():
 
 def load_gmm():
     intervals = []
-    with (BASE / "GMM.csv").open(newline="", encoding="utf-8-sig") as handle:
+    with (BASE / "AbsCNV.csv").open(newline="", encoding="utf-8-sig") as handle:
         reader = csv.DictReader(handle)
         last_field = reader.fieldnames[-1]
         for row in reader:
@@ -211,7 +211,7 @@ def main():
         "CNVkit": load_cnvkit(),
         "ControlFreec": load_controlfreec(),
         "ichorDNA": load_ichor(),
-        "GMM": load_gmm(),
+        "AbsCNV": load_gmm(),
     }
     rows = [evaluate(tool, calls, benchmark_merged, benchmark_length) for tool, calls in tools.items()]
     out = BASE / "tool_overall_recall_precision_fdr_f1.tsv"
